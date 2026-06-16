@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAVACH V2 - Anonymous Reporting Portal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 550px;
+        }
+        h2 {
+            color: #1a365d;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .sub-title {
+            text-align: center;
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        label {
+            font-weight: bold;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 8px;
+        }
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-size: 15px;
+            background-color: #fff;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            background-color: #2b6cb0;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #2c5282;
+        }
+        .info-text {
+            font-size: 13px;
+            color: #718096;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🛡️ KAVACH V2 PORTAL</h2>
+    <div class="sub-title">അജ്ഞാതമായി ലഹരിവിരുദ്ധ പരാതികൾ സമർപ്പിക്കാനുള്ള സുരക്ഷിത സംവിധാനം</div>
+
+    <form id="complaintForm">
+        <label for="districtSelect">ജില്ല തിരഞ്ഞെടുക്കുക:</label>
+        <select id="districtSelect" onchange="updateSchools()" required>
+            <option value="">-- ജില്ല തിരഞ്ഞെടുക്കുക --</option>
+            <option value="Thiruvananthapuram">തിരുവനന്തപുരം</option>
+            <option value="Kollam">കൊല്ലം</option>
+            <option value="Pathanamthitta">പത്തനംതിട്ട</option>
+            <option value="Alappuzha">ആലപ്പുഴ</option>
+            <option value="Kottayam">കോട്ടയം</option>
+            <option value="Idukki">ഇടുക്കി</option>
+            <option value="Ernakulam">എറണാകുളം</option>
+            <option value="Thrissur">തൃശ്ശൂർ</option>
+            <option value="Palakkad">പാലക്കാട്</option>
+            <option value="Malappuram">മലപ്പുറം</option>
+            <option value="Kozhikode">കോഴിക്കോട്</option>
+            <option value="Wayanad">വയനാട്</option>
+            <option value="Kannur">കണ്ണൂർ</option>
+            <option value="Kasaragod">കാസർഗോഡ്</option>
+        </select>
+
+        <label for="schoolSelect">സ്കൂൾ തിരഞ്ഞെടുക്കുക:</label>
+        <select id="schoolSelect" required disabled>
+            <option value="">-- ആദ്യം ജില്ല തിരഞ്ഞെടുക്കുക --</option>
+        </select>
+
+        <label for="complaintInput">നിങ്ങളുടെ പരാതി വിശദമായി എഴുതുക:</label>
+        <textarea id="complaintInput" placeholder="ലഹരി ഉപയോഗം അല്ലെങ്കിൽ വിതരണവുമായി ബന്ധപ്പെട്ട വിവരങ്ങൾ, സ്ഥലങ്ങൾ എന്നിവ ഇവിടെ രേഖപ്പെടുത്താം. നിങ്ങളുടെ വ്യക്തിവിവരങ്ങൾ ഒന്നും ശേഖരിക്കില്ല..." required></textarea>
+
+        <button type="button" onclick="submitComplaint()">അതീവ രഹസ്യമായി സമർപ്പിക്കുക</button>
+    </form>
+
+    <div class="info-text">
+        🔒 ഈ പോർട്ടൽ നിങ്ങളുടെ IP വിലാസമോ വ്യക്തിഗത വിവരങ്ങളോ ട്രാക്ക് ചെയ്യുന്നില്ല.
+    </div>
+</div>
+
+<script>
+// ജില്ല തിരിച്ചുള്ള സ്കൂളുകളുടെ ഡാറ്റ
+const schoolData = {
+    "Thiruvananthapuram": ["SMV Govt Model HSS TVM", "Govt Model HSS Thycaut", "Cotton Hill Govt Girls HSS"],
+    "Kollam": ["Govt Model HSS Kollam", "St. Aloysius HSS Kollam", "TKM HSS Karikode"],
+    "Pathanamthitta": ["Govt HSS Pathanamthitta", "Marthoma HSS Thiruvalla", "SNDP HSS Chenneerkara"],
+    "Alappuzha": ["Govt Mohammedans HSS Alappuzha", "Leo XIII HSS Alappuzha", "Govt HSS Alappuzha"],
+    "Kottayam": ["Govt Model HSS Kottayam", "MD Semonary HSS Kottayam", "CMS College HSS Kottayam"],
+    "Idukki": ["Govt HSS Thodupuzha", "St. George HSS Kattappana", "Govt HSS Munnar"],
+    "Ernakulam": ["Govt Model HSS Ernakulam", "St. Alberts HSS Ernakulam", "SRV Govt HSS Ernakulam"],
+    "Thrissur": ["Govt Model HSS Thrissur", "St. Thomas HSS Thrissur", "CMS HSS Thrissur"],
+    "Palakkad": ["Govt Victoria Girls HSS Palakkad", "PMG HSS Palakkad", "Govt HSS Cherpulassery"],
+    "Malappuram": ["Govt Boys HSS Malappuram", "MSP HSS Malappuram", "Govt HSS Tirurangadi"],
+    "Kozhikode": ["Govt Model HSS Kozhikode", "St. Josephs Boys HSS Kozhikode", "Silver Hills HSS Kozhikode"],
+    "Wayanad": ["Govt HSS Kalpetta", "St. Marys HSS Sultan Bathery", "Govt HSS Mananthavady"],
+    "Kannur": ["Govt Model HSS Kannur", "St. Michaels HSS Kannur", "Govt HSS Cherukunnu"],
+    "Kasaragod": ["Govt HSS Kasaragod", "BEM HSS Kasaragod", "Govt HSS Kanhangad"]
+};
+
+// ജില്ല സെലക്ട് ചെയ്യുമ്പോൾ സ്കൂളുകളുടെ ലിസ്റ്റ് മാറ്റാനുള്ള ഫങ്ക്ഷൻ
+function updateSchools() {
+    const districtSelect = document.getElementById("districtSelect");
+    const schoolSelect = document.getElementById("schoolSelect");
+    const selectedDistrict = districtSelect.value;
+
+    // പഴയ ഓപ്ഷനുകൾ ഒഴിവാക്കുക
+    schoolSelect.innerHTML = '<option value="">-- സ്കൂൾ തിരഞ്ഞെടുക്കുക --</option>';
+
+    if (selectedDistrict && schoolData[selectedDistrict]) {
+        schoolSelect.disabled = false;
+        schoolData[selectedDistrict].forEach(function(school) {
+            const option = document.createElement("option");
+            option.value = school;
+            option.textContent = school;
+            schoolSelect.appendChild(option);
+        });
+    } else {
+        schoolSelect.disabled = true;
+        schoolSelect.innerHTML = '<option value="">-- ആദ്യം ജില്ല തിരഞ്ഞെടുക്കുക --</option>';
+    }
+}
+
+// സെർവറിലേക്ക് പരാതി അയക്കുന്ന ഫങ്ക്ഷൻ
+function submitComplaint() {
+    const districtName = document.getElementById("districtSelect").value;
+    const schoolName = document.getElementById("schoolSelect").value;
+    const complaintText = document.getElementById("complaintInput").value;
+
+    if (!districtName || !schoolName || !complaintText) {
+        alert("ദയവായി എല്ലാ വിവരങ്ങളും പൂരിപ്പിക്കുക!");
+        return;
+    }
+
+    // നിങ്ങളുടെ ലൈവ് റെണ്ടർ സെർവർ ലിങ്ക്
+    const SERVER_URL = "https://kavach-server-5kum.onrender.com/api/report"; 
+
+    // സെർവറിലേക്ക് അയക്കേണ്ട ഡാറ്റ ഫോർമാറ്റ് (ഭംഗിക്കായി ജില്ലയും സ്കൂളും ഒരുമിച്ച് ചേർക്കുന്നു)
+    const data = {
+        school: `${schoolName} (${districtName} District)`,
+        complaint: complaintText
+    };
+
+    fetch(SERVER_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if(result.success) {
+            alert(result.message); // സെർവറിൽ നിന്ന് വിജയകരമായി സേവ് ആയ മെസ്സേജ് വരും
+            document.getElementById("complaintForm").reset();
+            document.getElementById("schoolSelect").disabled = true;
+            document.getElementById("schoolSelect").innerHTML = '<option value="">-- ആദ്യം ജില്ല തിരഞ്ഞെടുക്കുക --</option>';
+        } else {
+            alert("പിശക്: " + result.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("സെർവറുമായി ബന്ധപ്പെടാൻ സാധിച്ചില്ല! സെർവർ സ്ലീപ്പിങ് മോഡിൽ ആണെങ്കിൽ ലോഡ് ആകാൻ 50 സെക്കൻഡ് വരെ എടുത്തേക്കാം. ദയവായി അല്പം കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക.");
+    });
+}
+</script>
+
+</body>
+</html>
